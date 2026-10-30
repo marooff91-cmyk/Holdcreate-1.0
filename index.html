@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Holdcreate – Ton éditeur IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Figtree:wght@400;600;700&family=Noto+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1B2250;--acc:#B8892B;--bg:#F2F4F9;--line:#D9DDEA;--mut:#5B6283}
+body[data-t=foret]{--ink:#17402F;--acc:#C9A24B}
+body[data-t=bordeaux]{--ink:#6B1F33;--acc:#D8B26A}
+body[data-t=ocean]{--ink:#0F4C6B;--acc:#F0B65A}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:#161B33;font:16px/1.55 Figtree,'Noto Sans Arabic',sans-serif;display:flex;flex-direction:column;height:100dvh}
+h1,h2,h3{font-family:Newsreader,'Noto Sans Arabic',serif;font-weight:600;margin:0}
+header{display:flex;align-items:center;gap:12px;padding:12px 18px;background:#fff;border-bottom:1px solid var(--line)}
+header h1{font-size:22px;color:var(--ink);flex:1}
+.mk{width:34px;height:34px;border-radius:4px 9px 9px 4px;background:var(--ink);position:relative;flex:none;box-shadow:inset 5px 0 0 rgba(0,0,0,.25)}
+.mk:after{content:"";position:absolute;left:12px;top:9px;width:14px;height:3px;background:var(--acc)}
+#code{width:130px;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;font:inherit;font-size:14px}
+#chat{flex:1;overflow-y:auto;padding:22px 16px}
+.col{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.m{display:flex;gap:12px;align-items:flex-start}
+.m .mk{width:28px;height:28px;margin-top:2px}
+.m .mk:after{left:9px;top:7px;width:11px;height:2.5px}
+.m .tx{white-space:pre-wrap;max-width:100%}
+.m.u{justify-content:flex-end}
+.m.u .tx{background:#E1E6F5;padding:10px 16px;border-radius:18px 18px 4px 18px;max-width:85%}
+.m.e .tx{color:#B3261E;font-weight:600}
+.dots i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mut);margin:8px 3px;animation:b 1s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes b{50%{opacity:.25}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-left:40px}
+.chips button{font:inherit;padding:9px 15px;border-radius:999px;border:1.5px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer}
+.recap{margin-left:40px;background:#fff;border:1.5px solid var(--ink);border-radius:14px;padding:18px}
+.recap h3{font-size:22px;color:var(--ink);margin-bottom:8px}
+.recap dl{margin:0 0 14px;display:grid;grid-template-columns:auto 1fr;gap:4px 14px}
+.recap dt{color:var(--mut)}.recap dd{margin:0;font-weight:600}
+.btn{width:100%;font:700 17px Figtree;padding:14px;border:0;border-radius:12px;background:var(--ink);color:#fff;cursor:pointer}
+.bar{height:8px;background:var(--line);border-radius:8px;overflow:hidden;width:min(420px,70vw)}
+.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .4s}
+.dl{display:block;margin-top:12px;padding:13px 18px;border-radius:12px;background:var(--acc);color:#161B33;text-decoration:none;font-weight:700}
+form{padding:10px 16px 16px;background:linear-gradient(transparent,var(--bg) 30%)}
+.box{max-width:760px;margin:0 auto;display:flex;gap:10px;align-items:flex-end;background:#fff;border:1.5px solid var(--line);border-radius:22px;padding:8px 8px 8px 18px}
+.box:focus-within{border-color:var(--ink)}
+textarea{flex:1;border:0;outline:0;resize:none;font:inherit;max-height:140px;padding:8px 0;background:none}
+.send{width:42px;height:42px;border:0;border-radius:50%;background:var(--ink);color:#fff;font-size:20px;cursor:pointer;flex:none}
+.send:disabled{opacity:.45}
+button:focus-visible,#code:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+#stage{position:absolute;left:-9999px;top:0}
+.page{width:559px;height:794px;background:#fff;position:relative;overflow:hidden;color:#222;font:15px/1.65 Newsreader,'Noto Sans Arabic',serif;margin-bottom:10px}
+.inner{position:absolute;inset:56px 52px 64px;overflow:hidden}
+.page h2{font-size:30px;line-height:1.15;color:var(--ink);margin:0 0 16px;padding-bottom:12px;border-bottom:3px solid var(--acc)}
+.page p{margin:0 0 12px}
+.page img.il{width:100%;height:230px;object-fit:cover;border-radius:6px;margin:0 0 16px;display:block}
+.page ul,.page ol{padding-inline-start:22px;margin:0 0 12px}.page li{margin-bottom:7px}
+.page .ck{list-style:none;padding:0}
+.page .ck li:before{content:"";display:inline-block;width:12px;height:12px;border:1.8px solid var(--ink);border-radius:2px;margin-inline-end:10px}
+.pn{position:absolute;bottom:26px;left:0;right:0;text-align:center;font-size:12px;color:#888}
+.cover{background:var(--ink) center/cover;color:#fff}
+.cover:after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(10,12,30,.92),rgba(10,12,30,.15) 70%)}
+.cover .ct{position:absolute;z-index:1;left:46px;right:46px;bottom:70px}
+.cover .ct i{display:block;width:60px;height:4px;background:var(--acc);margin-bottom:18px}
+.cover h1{font-size:44px;line-height:1.08;margin-bottom:12px}.cover p{margin:0;opacity:.85;font-size:18px}
+@media(max-width:600px){#code{width:96px}.chips,.recap{margin-left:0}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+body{background:#fff}
+.top{display:flex;align-items:center;gap:12px;padding:12px 16px}
+.rb{width:48px;height:48px;border-radius:50%;border:0;background:#fff;box-shadow:0 1px 8px rgba(20,25,60,.16);display:grid;place-items:center;cursor:pointer;color:#161B33;flex:none}
+.pill{border:0;border-radius:999px;padding:13px 20px;background:color-mix(in srgb,var(--ink) 10%,#fff);color:var(--ink);font:600 17px Figtree;cursor:pointer;margin-right:auto}
+.col:has(#hello){min-height:100%;justify-content:center}
+#hello{text-align:center;padding-bottom:40px}
+#hello .mk{width:56px;height:56px;margin:0 auto 18px}
+#hello .mk:after{left:20px;top:16px;width:22px;height:5px}
+#hello h2{font-size:32px;color:var(--ink);margin-bottom:8px}
+#hello p{color:var(--mut);margin:0 auto 20px;max-width:34ch}
+#hello .chips{margin:0;justify-content:center}
+form{background:linear-gradient(transparent,#fff 35%)}
+.box{border:0;border-radius:999px;padding:6px 6px 6px 22px;box-shadow:0 2px 16px rgba(20,25,60,.14);align-items:center}
+textarea{padding:10px 0}
+#mic{width:42px;height:42px;border:0;border-radius:50%;background:none;display:grid;place-items:center;cursor:pointer;color:#161B33;flex:none}
+#mic.on{background:#fde4e4;color:#B3261E}
+#dr{position:fixed;inset:0 auto 0 0;width:min(320px,84vw);background:#fff;transform:translateX(-102%);transition:transform .25s;z-index:20;display:flex;flex-direction:column;padding:22px 20px 16px}
+#dr.open{transform:none}
+#sc{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .25s;z-index:10}
+#sc.open{opacity:1;pointer-events:auto}
+.dt{font-size:28px;color:var(--ink);margin-bottom:14px}
+.nv{display:flex;align-items:center;gap:16px;width:100%;padding:12px 0;border:0;background:none;font:600 18px Figtree;color:#161B33;text-align:left;cursor:pointer}
+.nv.sm{font-weight:400;font-size:17px;padding:9px 0}
+.sh{margin:22px 0 6px;font-weight:700;font-size:16px}
+.sh2{color:var(--mut);margin:6px 0}
+.rc{overflow-y:auto;flex:1}
+#set{display:none;padding:10px 0;border-top:1px solid var(--line);font-weight:600}
+#set.on{display:block}
+#set #code{width:100%;margin-top:6px;padding:10px}
+.sw{display:flex;gap:10px}
+.sw button{width:36px;height:36px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px var(--line);cursor:pointer}
+.bt{display:flex;justify-content:space-between;align-items:center;padding-top:12px}
+.nb{display:flex;gap:10px;align-items:center;border:0;border-radius:999px;padding:15px 24px;background:var(--ink);color:#fff;font:700 18px Figtree;cursor:pointer}
+#intro{position:fixed;inset:0;z-index:50;background:var(--ink);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;transition:transform .7s cubic-bezier(.7,0,.2,1);cursor:pointer}
+#intro.out{transform:translateY(-100%)}
+.ib{width:84px;height:112px;border-radius:5px 14px 14px 5px;background:#fff;position:relative;box-shadow:inset 10px 0 0 rgba(0,0,0,.18),0 20px 40px -12px rgba(0,0,0,.5);animation:bk .9s cubic-bezier(.2,.8,.2,1) both}
+.ib:after{content:"";position:absolute;left:30px;top:32px;height:5px;width:0;background:var(--acc);animation:gl .6s .8s forwards}
+@keyframes bk{from{transform:perspective(500px) rotateY(-85deg) scale(.6);opacity:0}to{transform:perspective(500px) rotateY(0);opacity:1}}
+@keyframes gl{to{width:34px}}
+#intro h1{font-size:46px;display:flex;color:#fff}
+#intro h1 span{opacity:0;transform:translateY(16px);animation:lt .5s forwards}
+#intro p{opacity:0;margin:0;color:rgba(255,255,255,.75);animation:lt .6s 1.9s forwards}
+@keyframes lt{to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){#intro h1 span,#intro p{opacity:1;transform:none}.ib:after{width:34px}}
+#auth[hidden]{display:none}
+#auth{position:fixed;inset:0;z-index:40;background:#fff;display:flex;align-items:center;justify-content:center;padding:24px}
+.ac{width:min(380px,100%);text-align:center}
+.ac .mk{width:56px;height:56px;margin:0 auto 18px}
+.ac .mk:after{left:20px;top:16px;width:22px;height:5px}
+.ac h2{font-size:30px;color:var(--ink);margin-bottom:6px}
+.ac p{color:var(--mut);margin:0}
+.ac input{width:100%;padding:14px 16px;border:1.5px solid var(--line);border-radius:14px;font:inherit;margin-top:10px}
+.ac .btn{margin-top:6px}
+.lk{border:0;background:none;color:var(--ink);font:600 16px Figtree;margin-top:14px;cursor:pointer}
+#am{color:#B3261E;font-weight:600;min-height:1.6em;margin-top:8px}
+#who{color:var(--mut);margin:0 0 6px;word-break:break-all}
+</style>
+</head>
+<body data-t="encre">
+<div id="auth" hidden><div class="ac"><div class="mk"></div><h2>Bienvenue sur Holdcreate</h2><p>Connecte-toi pour créer tes livres.</p><input id="em" type="email" placeholder="Email" autocomplete="email"><input id="pw" type="password" placeholder="Mot de passe (6 caractères min.)" autocomplete="current-password"><p id="am"></p><button class="btn" id="si">Se connecter</button><button class="lk" id="su">Créer un compte</button></div></div>
+<div id="intro"><div class="ib"></div><h1 id="iw" aria-label="Holdcreate"></h1><p>Tes livres, créés en quelques minutes.</p></div>
+<div class="top"><button class="rb" id="mn" aria-label="Menu"></button><button class="pill" id="pl">✦ Idées de livres</button><button class="rb" id="nw" aria-label="Nouveau livre"></button></div>
+<main id="chat"><div class="col" id="col"></div></main>
+<form id="f"><div class="box"><textarea id="in" rows="1" placeholder="Demander à Holdcreate…"></textarea><button type="button" id="mic" aria-label="Dicter"></button><button class="send" id="sd" aria-label="Envoyer">↑</button></div></form>
+<aside id="dr"><h2 class="dt">Holdcreate</h2><nav id="nav"></nav><div class="sh">Livres récents</div><div class="rc" id="rc"></div><div id="set"><p id="who"></p><button class="nv" id="lo" hidden>Se déconnecter</button><label>Code d'accès<input id="code" type="password" autocomplete="off"></label><div class="sh">Couleur des couvertures</div><div class="sw" id="sw"></div></div><div class="bt"><button class="nb" id="nb"></button><button class="rb" id="gr" aria-label="Réglages"></button></div></aside><div id="sc"></div>
+<div id="stage"></div>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const LANGS={fr:'Français',en:'English',es:'Español',pt:'Português',de:'Deutsch',it:'Italiano',ar:'العربية',sw:'Kiswahili',tr:'Türkçe',zh:'中文'};
+const STY={real:'photorealistic, natural light, high detail',cartoon:'colorful cartoon illustration, clean lines',mini:'minimalist flat vector illustration, simple shapes, limited palette'};
+const STN={real:'Réaliste',cartoon:'Cartoon',mini:'Minimaliste'};
+const TYPE={
+ ebook:"un e-book rédigé ; paragraphs = 4 paragraphes développés, points = 3 idées clés à retenir",
+ illustre:"un e-book illustré ; paragraphs = 4 paragraphes développés, points = 3 idées clés à retenir",
+ guide:"un guide pratique ; paragraphs = 2 courts paragraphes, points = 5 étapes numérotées et actionnables",
+ check:"une checklist ; paragraphs = 1 courte introduction, points = 8 actions concrètes à cocher"};
+const TN={ebook:'E-book texte',illustre:'E-book illustré',guide:'Guide pas à pas',check:'Checklist'};
+const SYS=`Tu es l'éditeur IA de Holdcreate. Tu aides un client à définir un produit digital (e-book, guide, checklist) avant sa fabrication. Parle dans la langue du client, avec un ton chaleureux et simple. Pose une ou deux questions courtes à la fois. À recueillir : sujet, public, ton, type (ebook=texte, illustre=avec images, guide, check), langues (codes parmi ${Object.keys(LANGS).join(',')}), style d'images (real, cartoon, mini), longueur (4, 7 ou 10 chapitres), titre (facultatif), couleur de couverture (encre, foret, bordeaux, ocean). Si le client hésite, propose un choix par défaut raisonnable. Dès que tu as le sujet, le public, le type et les langues, mets ready=true et résume en une phrase en demandant si c'est bon. Réponds uniquement en JSON : {"reply":"","suggestions":["2 à 4 réponses courtes possibles"],"ready":false,"spec":{"topic":"","title":"","audience":"","tone":"","type":"","langs":[],"style":"","len":"","theme":""}}. Dans spec, ne mets que ce que le client a confirmé ou accepté.`;
+const H=[];let spec={},busy=false,S,pref='encre',sb=null,tok=null;const LIB={};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const col=$('#col'),chat=$('#chat');
+const down=()=>chat.scrollTo({top:chat.scrollHeight,behavior:'smooth'});
+function msg(r,t){const m=el('div','m '+r);if(r!=='u')m.append(el('div','mk'));const x=el('div','tx',t);m.append(x);col.append(m);down();return m}
+function typing(){const m=msg('a','');m.lastChild.className='tx dots';m.lastChild.innerHTML='<i></i><i></i><i></i>';return m}
+function clr(){document.querySelectorAll('.chips').forEach(c=>c.remove())}
+function chips(a){if(!a||!a.length)return;const c=el('div','chips');a.slice(0,6).forEach(s=>{const b=el('button',null,s);b.type='button';b.onclick=()=>send(s);c.append(b)});col.append(c);down()}
+
+async function ai(prompt,json=true){
+ for(let i=0;i<5;i++){
+  try{const r=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json',...(tok&&{Authorization:'Bearer '+tok})},body:JSON.stringify({prompt,json,code:$('#code').value})});
+   const d=await r.json();
+   if(r.status===401){if(sb)$('#auth').hidden=false;throw new Error(d.error)}
+   if(r.ok){try{return JSON.parse(d.text.replace(/^```json|```$/g,'').trim())}catch(e){}}
+  }catch(e){if(e.message==="Code d'accès invalide"||e.message==='Connecte-toi pour continuer')throw e}
+  await sleep(6000*(i+1));
+ }
+ throw new Error("L'IA est saturée. Réessaie dans quelques minutes.");
+}
+
+async function send(t){
+ t=(t||'').trim();if(busy||!t)return;busy=true;$('#sd').disabled=true;clr();{const h=$('#hello');if(h)h.remove()}
+ msg('u',t);H.push('Client : '+t);$('#in').value='';$('#in').style.height='auto';
+ const d=typing();
+ try{
+  const r=await ai(SYS+'\n\nConversation :\n'+H.join('\n')+'\n\nDonnées déjà recueillies : '+JSON.stringify(spec));
+  Object.entries(r.spec||{}).forEach(([k,v])=>{if(v&&v.length!==0)spec[k]=v});
+  H.push('Éditeur : '+r.reply);d.remove();msg('a',r.reply);
+  if(r.ready&&spec.topic)recap();else chips(r.suggestions);
+ }catch(e){d.remove();msg('a e',e.message)}
+ busy=false;$('#sd').disabled=false;
+}
+
+function norm(){
+ S=Object.assign({type:'illustre',style:'real',len:'7',theme:pref,langs:['fr']},spec);
+ if(!TYPE[S.type])S.type='illustre';if(!STY[S.style])S.style='real';
+ S.langs=[].concat(S.langs).filter(l=>LANGS[l]);if(!S.langs.length)S.langs=['fr'];
+ S.len=[4,7,10].reduce((a,b)=>Math.abs(b-S.len)<Math.abs(a-S.len)?b:a);
+ if(!['encre','foret','bordeaux','ocean'].includes(S.theme))S.theme='encre';
+}
+function recap(){
+ norm();document.body.dataset.t=S.theme;
+ const c=el('div','recap');c.append(el('h3',null,S.title||'Ton livre'));
+ const dl=el('dl');
+ [['Sujet',S.topic],['Public',S.audience||'Grand public'],['Type',TN[S.type]],['Langues',S.langs.map(l=>LANGS[l]).join(', ')],['Images',S.type==='illustre'?STN[S.style]:'—'],['Longueur',S.len+' chapitres']].forEach(([a,b])=>{dl.append(el('dt',null,a),el('dd',null,b))});
+ const b=el('button','btn','C\'est bon, créer mon livre');b.onclick=()=>{b.disabled=true;c.querySelector('.btn').textContent='Création en cours…';run()};
+ c.append(dl,b);col.append(c);
+ chips(['Je veux modifier quelque chose']);down();
+}
+
+async function img(p){
+ try{const u='https://image.pollinations.ai/prompt/'+encodeURIComponent(p+', '+STY[S.style])+'?width=768&height=768&nologo=true&seed='+Math.floor(Math.random()*1e6);
+  const c=new AbortController();setTimeout(()=>c.abort(),60000);
+  const b=await (await fetch(u,{signal:c.signal})).blob();
+  return await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
+ }catch(e){return null}
+}
+function build(bk,lang,cover){
+ const pages=[];let cur,inn;
+ const np=()=>{cur=el('div','page');inn=el('div','inner');cur.append(inn);if(lang==='ar')cur.dir='rtl';pages.push(cur);$('#stage').append(cur)};
+ const add=n=>{inn.append(n);if(inn.scrollHeight>inn.clientHeight&&inn.children.length>1){inn.removeChild(n);np();inn.append(n)}};
+ const cv=el('div','page cover');if(cover)cv.style.backgroundImage='url('+cover+')';if(lang==='ar')cv.dir='rtl';
+ const ct=el('div','ct');ct.append(el('i'),el('h1',null,bk.title),el('p',null,bk.subtitle||''));cv.append(ct);pages.push(cv);$('#stage').append(cv);
+ bk.chapters.forEach(c=>{np();add(el('h2',null,c.title));
+  if(c.img){const i=el('img','il');i.src=c.img;add(i)}
+  (c.paragraphs||[]).forEach(t=>add(el('p',null,t)));
+  if(c.points&&c.points.length){const l=el(S.type==='guide'?'ol':'ul',S.type==='check'?'ck':'');c.points.forEach(t=>l.append(el('li',null,t)));add(l)}});
+ pages.forEach((p,i)=>{if(i)p.append(el('div','pn',i))});
+ return pages;
+}
+async function pdf(pages){
+ const {jsPDF}=window.jspdf;const d=new jsPDF({unit:'mm',format:[148,210]});
+ for(let i=0;i<pages.length;i++){const c=await html2canvas(pages[i],{scale:1.7,useCORS:true});
+  if(i)d.addPage([148,210]);d.addImage(c.toDataURL('image/jpeg',.85),'JPEG',0,0,148,210)}
+ return d.output('blob');
+}
+
+async function run(){
+ clr();busy=true;$('#sd').disabled=true;$('#stage').innerHTML='';
+ const m=msg('a','');const tx=m.lastChild;const label=el('div',null,'Je commence…');const bar=el('div','bar');const pb=el('i');bar.append(pb);tx.append(label,bar);
+ const prog=(p,t)=>{pb.style.width=p+'%';label.textContent=t};
+ try{
+  const L=S.langs,n=S.len,L1=LANGS[L[0]],ctx=`Public : ${S.audience||'grand public'}. Ton : ${S.tone||'clair et engageant'}.`;
+  prog(3,'Écriture du plan…');
+  const o=await ai(`Tu es un auteur professionnel. Langue : ${L1}. Produit : ${TYPE[S.type]}. Sujet : ${S.topic}. ${ctx} ${S.title?'Titre imposé : '+S.title+'.':''} Réponds en JSON : {"title":"","subtitle":"","coverPrompt":"description d'image de couverture en anglais, sans texte","chapters":[{"title":"","brief":"de quoi parle le chapitre","imagePrompt":"description d'illustration en anglais"}]} avec exactement ${n} chapitres.`);
+  const bk={title:o.title,subtitle:o.subtitle,chapters:[]};
+  for(let i=0;i<o.chapters.length;i++){const c=o.chapters[i];
+   prog(8+i/n*47,`Rédaction du chapitre ${i+1} sur ${n}…`);
+   const t=await ai(`Langue : ${L1}. Livre : « ${o.title} » (${TYPE[S.type]}). ${ctx} Écris le chapitre « ${c.title} » : ${c.brief}. Réponds en JSON : {"paragraphs":[],"points":[]}`);
+   bk.chapters.push({title:c.title,paragraphs:t.paragraphs,points:t.points,ip:c.imagePrompt})}
+  prog(58,'Création de la couverture…');
+  const cover=await img(o.coverPrompt);
+  if(S.type==='illustre')for(let i=0;i<bk.chapters.length;i++){prog(60+i/n*18,`Illustration ${i+1} sur ${n}…`);bk.chapters[i].img=await img(bk.chapters[i].ip)}
+  for(let k=0;k<L.length;k++){
+   let b=bk;
+   if(k>0){prog(80+k/L.length*8,`Traduction en ${LANGS[L[k]]}…`);
+    const x=await ai(`Traduis en ${LANGS[L[k]]} toutes les valeurs texte de ce JSON. Garde exactement les mêmes clés et la même structure. Réponds uniquement en JSON.\n`+JSON.stringify({title:bk.title,subtitle:bk.subtitle,chapters:bk.chapters.map(c=>({title:c.title,paragraphs:c.paragraphs,points:c.points}))}));
+    b={title:x.title,subtitle:x.subtitle,chapters:x.chapters.map((c,i)=>({...c,img:bk.chapters[i].img}))}}
+   prog(88+k/L.length*10,`Mise en page du PDF (${LANGS[L[k]]})…`);
+   await document.fonts.ready;
+   const blob=await pdf(build(b,L[k],cover));
+   const a=el('a','dl',`Télécharger le PDF · ${LANGS[L[k]]}`);a.href=URL.createObjectURL(blob);a.download=b.title.replace(/[^\p{L}\p{N}]+/gu,'-')+'-'+L[k]+'.pdf';tx.append(a);(LIB[bk.title]=LIB[bk.title]||[]).push({l:L[k],u:a.href,n:a.download});
+   $('#stage').innerHTML='';
+  }
+  prog(100,'Ton livre est prêt. Les PDF sont ci-dessous.');
+  H.push('Éditeur : le livre « '+bk.title+' » a été créé.');save(bk.title);spec={};
+  setTimeout(()=>{msg('a','Tu veux créer un autre livre, ou changer quelque chose ? Dis-moi.');chips(['Un nouveau livre'])},400);
+ }catch(e){m.remove();msg('a e',e.message||'Une erreur est survenue. Réessaie.')}
+ busy=false;$('#sd').disabled=false;down();
+}
+
+$('#f').onsubmit=e=>{e.preventDefault();send($('#in').value)};
+$('#in').addEventListener('input',e=>{e.target.style.height='auto';e.target.style.height=e.target.scrollHeight+'px'});
+$('#in').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!('ontouchstart' in window)){e.preventDefault();send($('#in').value)}});
+const IDEAS=['Un e-book sur l\'e-commerce en Afrique','Un guide pas à pas pour débutants','Une checklist de lancement','Un e-book de recettes illustré','Un livre de développement personnel','J\'ai ma propre idée'];
+const svg=d=>'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>';
+const IC={menu:'<path d="M5 9h14M5 15h9"/>',nw:'<path d="M4 20h4L19 9l-4-4L4 16zM13 7l4 4"/>',mic:'<rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',idea:'<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>',book:'<path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3zM5 17a3 3 0 0 1 3-3h10"/>',img:'<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.5"/><path d="m4 18 5-5 4 4 3-3 4 4"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>'};
+$('#mn').innerHTML=svg(IC.menu);$('#nw').innerHTML=svg(IC.nw);$('#mic').innerHTML=svg(IC.mic);$('#gr').innerHTML=svg(IC.gear);
+$('#nb').innerHTML=svg(IC.nw)+'Nouveau livre';
+const dr=$('#dr'),sc=$('#sc');const tog=o=>{dr.classList.toggle('open',o);sc.classList.toggle('open',o)};
+const grow=()=>{const t=$('#in');t.style.height='auto';t.style.height=t.scrollHeight+'px'};
+function mkChips(a){const c=el('div','chips');a.forEach(s=>{const b=el('button',null,s);b.type='button';b.onclick=()=>send(s);c.append(b)});return c}
+function hello(){const h=el('div');h.id='hello';h.append(el('div','mk'),el('h2',null,'Quel livre veux-tu créer ?'),el('p',null,'Décris ton idée. Je te pose les bonnes questions, puis je fabrique le PDF.'),mkChips(IDEAS.slice(0,4)));col.append(h)}
+function reset(){if(busy)return;col.innerHTML='';H.length=0;spec={};tog(false);hello()}
+[['idea','Idées de livres',()=>{tog(false);clr();chips(IDEAS)}],['book','Types de produits',()=>{tog(false);send('Explique-moi les types de produits que tu peux créer')}],['img','Styles d\'images',()=>{tog(false);send('Explique-moi les styles d\'illustration possibles')}]].forEach(([i,t,f])=>{const b=el('button','nv');b.innerHTML=svg(IC[i])+t;b.onclick=f;$('#nav').append(b)});
+$('#pl').onclick=()=>{clr();chips(IDEAS)};
+$('#mn').onclick=()=>tog(true);sc.onclick=()=>tog(false);
+$('#nw').onclick=$('#nb').onclick=reset;
+$('#gr').onclick=()=>$('#set').classList.toggle('on');
+[['encre','#1B2250'],['foret','#17402F'],['bordeaux','#6B1F33'],['ocean','#0F4C6B']].forEach(([k,c])=>{const b=el('button');b.style.background=c;b.setAttribute('aria-label',k);b.onclick=()=>{pref=k;document.body.dataset.t=k};$('#sw').append(b)});
+function save(t){let a=[];try{a=JSON.parse(localStorage.getItem('livres')||'[]');a.unshift({t,d:new Date().toLocaleDateString('fr-FR')});localStorage.setItem('livres',JSON.stringify(a.slice(0,30)))}catch(e){}recents()}
+function recents(){const r=$('#rc');r.innerHTML='';let a=[];try{a=JSON.parse(localStorage.getItem('livres')||'[]')}catch(e){}
+ if(!a.length){r.append(el('p','sh2','Tes livres apparaîtront ici.'));return}
+ a.forEach(x=>{const b=el('button','nv sm',x.t);b.onclick=()=>{tog(false);const l=LIB[x.t];if(l){const m=msg('a',x.t);l.forEach(k=>{const a=el('a','dl','Télécharger le PDF · '+LANGS[k.l]);a.href=k.u;a.download=k.n;m.lastChild.append(a)})}else msg('a','« '+x.t+' » a été créé le '+x.d+'. Les PDF ne sont gardés que pendant la session : recrée le livre pour le retélécharger.')};r.append(b)})}
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec;
+$('#mic').onclick=()=>{if(!SR){msg('a e','La dictée vocale n\'est pas disponible sur ce navigateur.');return}
+ if(rec){rec.stop();return}
+ rec=new SR();rec.lang='fr-FR';rec.interimResults=true;rec.continuous=true;const base=$('#in').value;
+ rec.onresult=e=>{let t='';for(const r of e.results)t+=r[0].transcript;$('#in').value=(base?base+' ':'')+t;grow()};
+ rec.onend=()=>{rec=null;$('#mic').classList.remove('on')};rec.start();$('#mic').classList.add('on')};
+async function doAuth(up){
+ const e=$('#em').value.trim(),p=$('#pw').value,m=$('#am');m.textContent='';
+ if(!e||p.length<6){m.textContent='Entre un email et un mot de passe de 6 caractères minimum.';return}
+ const r=up?await sb.auth.signUp({email:e,password:p}):await sb.auth.signInWithPassword({email:e,password:p});
+ if(r.error){const t=r.error.message;m.textContent=t.includes('Invalid login')?'Email ou mot de passe incorrect.':t.includes('already')?'Cet email a déjà un compte. Connecte-toi.':'Erreur : '+t;return}
+ if(up&&!r.data.session)m.textContent='Compte créé. Vérifie ta boîte email pour confirmer, puis connecte-toi.';
+}
+$('#si').onclick=()=>doAuth(false);$('#su').onclick=()=>doAuth(true);
+$('#lo').onclick=()=>{sb.auth.signOut();tog(false)};
+(async()=>{try{const c=await (await fetch('/api/config')).json();if(!c.url||!c.key)return;
+ sb=supabase.createClient(c.url,c.key);$('#code').closest('label').style.display='none';$('#lo').hidden=false;
+ const set=s=>{tok=s?.access_token||null;$('#auth').hidden=!!tok;$('#who').textContent=s?.user?.email||''};
+ set((await sb.auth.getSession()).data.session);sb.auth.onAuthStateChange((_e,s)=>set(s));
+}catch(e){}})();
+recents();hello();
+(()=>{const w=$('#iw');'Holdcreate'.split('').forEach((c,i)=>{const x=el('span',null,c);x.style.animationDelay=(1+i*.07)+'s';w.append(x)});
+const i=$('#intro');const go=()=>{i.classList.add('out');setTimeout(()=>i.remove(),800)};i.onclick=go;setTimeout(go,3100)})();
+</script>
+</body>
+</html>
